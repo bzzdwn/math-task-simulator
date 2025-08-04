@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сходимость рядов</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        /* ... стили из прошлого ответа ... */
+        .answer-buttons button { margin-right: 10px; }
+        .correct { color: green; }
+        .incorrect { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Исследуйте ряд на сходимость</h1>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar">0/0</div>
+    </div>
+
+    <div id="taskCard" class="task-card">
+        <div id="taskProblem" class="task-problem">Загрузка...</div>
+        <div class="answer-buttons">
+            <button data-answer="сходится">Сходится</button>
+            <button data-answer="расходится">Расходится</button>
+        </div>
+        <button id="nextButton">Следующая</button>
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        // ... (JS код, адаптированный под новую логику)
+        const taskProblemEl = document.getElementById('taskProblem');
+        const answerButtonsContainer = document.querySelector('.answer-buttons');
+        const nextButton = document.getElementById('nextButton');
+        const feedbackEl = document.getElementById('feedback');
+        const progressBarEl = document.getElementById('progressBar');
+
+        let tasks = [];
+        let solvedTasks = new Set();
+        let currentTaskIndex = 0;
+
+        function renderTask() {
+            const task = tasks[currentTaskIndex];
+            taskProblemEl.textContent = task.problem_latex;
+            renderMathInElement(taskProblemEl, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+            
+            feedbackEl.textContent = '';
+            answerButtonsContainer.style.display = 'block';
+        }
+
+        async function checkAnswer(userAnswer) {
+            const task = tasks[currentTaskIndex];
+            
+            const response = await fetch(`${API_URL}/check-answer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task_id: task.id, user_answer: userAnswer })
+            });
+            const result = await response.json();
+            
+            if (result.is_correct) {
+                feedbackEl.textContent = 'Верно!';
+                feedbackEl.className = 'feedback correct';
+                solvedTasks.add(task.id);
+                answerButtonsContainer.style.display = 'none'; // Скрываем кнопки после верного ответа
+            } else {
+                feedbackEl.textContent = 'Неверно. Подумайте еще раз.';
+                feedbackEl.className = 'feedback incorrect';
+            }
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressText = `${solvedTasks.size} / ${tasks.length}`;
+            const progressPercent = (solvedTasks.size / tasks.length) * 100;
+            progressBarEl.textContent = progressText;
+            progressBarEl.style.width = `${progressPercent}%`;
+        }
+
+        answerButtonsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const userAnswer = e.target.dataset.answer;
+                checkAnswer(userAnswer);
+            }
+        });
+        
+        nextButton.addEventListener('click', () => {
+            currentTaskIndex = (currentTaskIndex + 1) % tasks.length;
+            renderTask();
+        });
+
+        async function main() {
+            const response = await fetch(`${API_URL}/tasks`);
+            tasks = await response.json();
+            if (tasks.length > 0) {
+                renderTask();
+                updateProgress();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', main);
+    </script>
+</body>
+</html>
