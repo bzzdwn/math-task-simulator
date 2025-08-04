@@ -72,12 +72,25 @@ function App() {
   };
 
   // *** НОВАЯ ФУНКЦИЯ: Обработчик перехода к следующей задаче ***
-  const handleNextTask = () => {
-    // Переходим к следующему индексу, зацикливая его, если дошли до конца
-    setCurrentTaskIndex((prevIndex) => (prevIndex + 1) % tasks.length);
-    // Сбрасываем состояние обратной связи и флаг ответа
-    setFeedback({ show: false, message: '', variant: 'success' });
-    setIsAnswered(false);
+const handleNextTask = () => {
+    // Начинаем поиск со следующего индекса
+    let nextIndex = currentTaskIndex + 1;
+
+    // Ищем следующий нерешенный индекс
+    // Мы пройдем по кругу не более одного раза
+    for (let i = 0; i < tasks.length; i++) {
+        // Зацикливаем индекс, чтобы после последней задачи начать с первой
+        const potentialIndex = (nextIndex + i) % tasks.length;
+        
+        // Если ID задачи с этим индексом НЕТ в списке решенных
+        if (!solvedTasks.has(tasks[potentialIndex].id)) {
+            // Мы нашли следующую нерешенную задачу!
+            setCurrentTaskIndex(potentialIndex);
+            setFeedback({ show: false, message: '', variant: 'success' });
+            setIsAnswered(false);
+            return; // Выходим из функции, так как дело сделано
+        }
+    }
   };
   
   // --- Код для рендеринга остается почти без изменений, но с добавлением обработчиков ---
@@ -101,53 +114,70 @@ function App() {
   const currentTask = tasks[currentTaskIndex];
   const progress = Math.round((solvedTasks.size / tasks.length) * 100);
 
+  const allTasksSolved = tasks.length > 0 && solvedTasks.size === tasks.length;
+
   return (
-    <Container className="my-5 mx-auto" style={{ maxWidth: '800px' }}>
-      <h1 className="mb-4 text-center">Исследуйте ряд на сходимость</h1>
-      <ProgressBar now={progress} label={`${solvedTasks.size}/${tasks.length}`} className="mb-4" />
-      
-      <Card>
-        <Card.Body>
-          <Card.Title className="text-center mb-4">Задача #{currentTask.id}</Card.Title>
-          <div 
-            className="my-4 fs-4 text-center"
-            dangerouslySetInnerHTML={{ __html: katex.renderToString(currentTask.problem_latex, { throwOnError: false, displayMode: true }) }}
+      <Container className="my-5 mx-auto" style={{ maxWidth: '800px' }}>
+          <h1 className="mb-4 text-center">Исследуйте ряд на сходимость</h1>
+          <ProgressBar 
+              variant={allTasksSolved ? 'success' : 'primary'}
+              now={progress} 
+              label={`${solvedTasks.size}/${tasks.length}`} 
+              className="mb-4" 
           />
-          {/* *** ИЗМЕНЕНИЯ ЗДЕСЬ: Добавляем обработчики onClick и свойство disabled *** */}
-          <div className="d-grid gap-2 d-md-flex justify-content-md-center">
-            <Button 
-              variant="outline-primary" 
-              size="lg" 
-              onClick={() => handleAnswer('сходится')} 
-              disabled={isAnswered}
-            >
-              Сходится
-            </Button>
-            <Button 
-              variant="outline-secondary" 
-              size="lg" 
-              onClick={() => handleAnswer('расходится')} 
-              disabled={isAnswered}
-            >
-              Расходится
-            </Button>
-          </div>
-        </Card.Body>
-      </Card>
+        
+          {/* *** НОВОЕ УСЛОВИЕ: Показываем карточку, только если не все решено *** */}
+          {!allTasksSolved ? (
+              <Card>
+                  <Card.Body>
+                      <Card.Title className="text-center mb-4">Задача #{currentTask.id}</Card.Title>
+                      <div 
+                          className="my-4 fs-4 text-center"
+                          dangerouslySetInnerHTML={{ __html: katex.renderToString(currentTask.problem_latex, { throwOnError: false, displayMode: true }) }}
+                      />
+                      <div className="d-grid gap-2 d-md-flex justify-content-md-center">
+                          <Button 
+                              variant="outline-primary" 
+                              size="lg" 
+                              onClick={() => handleAnswer('сходится')} 
+                              disabled={isAnswered}
+                          >
+                              Сходится
+                          </Button>
+                          <Button 
+                              variant="outline-secondary" 
+                              size="lg" 
+                              onClick={() => handleAnswer('расходится')} 
+                              disabled={isAnswered}
+                          >
+                              Расходится
+                          </Button>
+                      </div>
+                  </Card.Body>
+              </Card>
+          ) : (
+              // *** НОВЫЙ БЛОК: Показываем поздравление, если все решено ***
+              <Alert variant="success" className="text-center">
+                  <Alert.Heading>Поздравляем!</Alert.Heading>
+                  <p>Вы успешно решили все задачи.</p>
+              </Alert>
+          )}
 
-      {feedback.show && (
-        <Alert variant={feedback.variant} className="mt-4" onClose={() => setFeedback({ ...feedback, show: false })} dismissible>
-          {feedback.message}
-        </Alert>
-      )}
+          {feedback.show && (
+              <Alert variant={feedback.variant} className="mt-4" onClose={() => setFeedback({ ...feedback, show: false })} dismissible>
+                  {feedback.message}
+              </Alert>
+          )}
 
-      {/* *** ИЗМЕНЕНИЯ ЗДЕСЬ: Добавляем обработчик onClick *** */}
-      <div className="text-center mt-4">
-        <Button variant="info" onClick={handleNextTask}>
-          Следующая задача
-        </Button>
-      </div>
-    </Container>
+          {/* *** НОВОЕ УСЛОВИЕ: Показываем кнопку "Следующая", только если не все решено *** */}
+          {!allTasksSolved && (
+              <div className="text-center mt-4">
+                  <Button variant="info" onClick={handleNextTask}>
+                      Следующая задача
+                  </Button>
+              </div>
+          )}
+      </Container>
   );
 }
 
