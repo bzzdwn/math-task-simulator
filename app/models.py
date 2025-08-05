@@ -1,24 +1,57 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum as SQLAlchemyEnum, Float, ForeignKey
+from sqlalchemy.orm import relationship
 from .database import Base
+from sqlalchemy.dialects.postgresql import JSONB # Для PostgreSQL
+from sqlalchemy.types import JSON # Для SQLite
 import enum
 
+class TaskTypeEnum(str, enum.Enum):
+    CONVERGENCE = "convergence"  # Сходимость (сходится/расходится)
+    NUMERIC = "numeric"          # Числовой ответ
+    EXPRESSION = "expression"    # Формула/выражение
+
 class Convergence(str, enum.Enum):
-    """
-    Перечисление для возможных ответов о сходимости ряда.
-    Обеспечивает целостность данных в базе.
-    """
     CONVERGES = "сходится"
     DIVERGES = "расходится"
 
+class Discipline(Base):
+    __tablename__ = "disciplines"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    sections = relationship("Section", back_populates="discipline")
+
+class Section(Base):
+    __tablename__ = "sections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    discipline_id = Column(Integer, ForeignKey('disciplines.id'))
+    discipline = relationship("Discipline", back_populates="sections")
+    topics = relationship("Topic", back_populates="section")
+
+class Topic(Base):
+    __tablename__ = "topics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    section_id = Column(Integer, ForeignKey('sections.id'))
+    section = relationship("Section", back_populates="topics")
+    tasks = relationship("Task", back_populates="topic")
+
 class Task(Base):
-    """
-    Модель SQLAlchemy, представляющая таблицу 'tasks' в базе данных.
-    Каждая запись в этой таблице - это одна математическая задача.
-    """
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    # Текст задачи в формате LaTeX. Он будет рендериться на фронтенде.
+    topic_id = Column(Integer, ForeignKey('topics.id'))
+    topic = relationship("Topic", back_populates="tasks")
+
+    instruction = Column(String, nullable=False)
     problem_latex = Column(String, nullable=False)
-    # Правильный ответ: 'сходится' или 'расходится'
-    correct_answer = Column(Enum(Convergence), nullable=False)
+    hint = Column(String)
+    
+    task_type = Column(SQLAlchemyEnum(TaskTypeEnum), nullable=False)
+
+    answer_convergence = Column(SQLAlchemyEnum(Convergence), nullable=True) # Для 'сходится/расходится'
+    answer_numeric = Column(Float, nullable=True) # Для числовых ответов
+    answer_expression_str = Column(String, nullable=True) # Для формул в виде строки

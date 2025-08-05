@@ -5,33 +5,89 @@ import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
 import './index.css'; // Убедитесь, что этот файл содержит стили для центрирования
 
 const API_URL = "http://127.0.0.1:8000";
+const SOLVED_TASKS_STORAGE_KEY = 'mathAppSolvedTasks';
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-  const [solvedTasks, setSolvedTasks] = useState(new Set());
+  //const [solvedTasks, setSolvedTasks] = useState(new Set());
   const [feedback, setFeedback] = useState({ show: false, message: '', variant: 'success' });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // *** НОВОЕ СОСТОЯНИЕ: Ответил ли пользователь на текущую задачу ***
+  
   const [isAnswered, setIsAnswered] = useState(false);
 
+  const [solvedTasks, setSolvedTasks] = useState(() => {
+    const savedTasks = localStorage.getItem(SOLVED_TASKS_STORAGE_KEY);
+    if (savedTasks) {
+        return new Set(JSON.parse(savedTasks));
+    } else {
+      return new Set();
+    }
+  });
+
   useEffect(() => {
-    const fetchTasks = async () => {
+    const solvedTasksArray = Array.from(solvedTasks);
+    localStorage.setItem(SOLVED_TASKS_STORAGE_KEY, JSON.stringify(solvedTasksArray));
+  }, [solvedTasks]);
+
+  useEffect(() => {
+    // Функция для перемешивания массива (алгоритм Фишера-Йетса)
+    const shuffleArray = (array) => {
+      let currentIndex = array.length, randomIndex;
+      // Пока остаются элементы для перемешивания
+      while (currentIndex !== 0) {
+        // Выбираем оставшийся элемент
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        // И меняем его местами с текущим элементом
+        [array[currentIndex], array[randomIndex]] = [
+          array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    };
+
+    const fetchAndPrepareTasks = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const response = await fetch(`${API_URL}/tasks`);
         if (!response.ok) throw new Error(`Сетевая ошибка: ${response.status}`);
+        
         const data = await response.json();
-        setTasks(data);
+        
+        // 1. Перемешиваем полученные задачи
+        const shuffledTasks = shuffleArray(data);
+        setTasks(shuffledTasks);
+
+        // 2. Находим индекс ПЕРВОЙ НЕРЕШЕННОЙ задачи
+        const savedSolvedTasks = new Set(JSON.parse(localStorage.getItem(SOLVED_TASKS_STORAGE_KEY) || '[]'));
+        
+        let firstUnsolvedIndex = -1;
+        for (let i = 0; i < shuffledTasks.length; i++) {
+          if (!savedSolvedTasks.has(shuffledTasks[i].id)) {
+            firstUnsolvedIndex = i;
+            break; // Нашли первую, выходим из цикла
+          }
+        }
+
+        // 3. Устанавливаем начальный индекс
+        if (firstUnsolvedIndex !== -1) {
+          // Если есть нерешенные задачи, устанавливаем индекс на первую из них
+          setCurrentTaskIndex(firstUnsolvedIndex);
+        } else if (shuffledTasks.length > 0) {
+          // Если все задачи решены, просто покажем первую (перемешанную) задачу
+          setCurrentTaskIndex(0);
+        }
+        
       } catch (e) {
         console.error("Fetch error:", e);
         setError("Не удалось подключиться к серверу. Пожалуйста, убедитесь, что он запущен, и обновите страницу.");
@@ -39,7 +95,8 @@ function App() {
         setIsLoading(false);
       }
     };
-    fetchTasks();
+
+    fetchAndPrepareTasks();
   }, []);
 
   // *** НОВАЯ ФУНКЦИЯ: Обработчик ответа пользователя ***
@@ -113,8 +170,27 @@ const handleNextTask = () => {
 
   const currentTask = tasks[currentTaskIndex];
   const progress = Math.round((solvedTasks.size / tasks.length) * 100);
-
   const allTasksSolved = tasks.length > 0 && solvedTasks.size === tasks.length;
+
+  const cardVariants = {
+    initial: {
+      opacity: 0,
+      x: -100, // Начинаем за левым краем
+      scale: 0.8
+    },
+    animate: {
+      opacity: 1,
+      x: 0, // Приезжаем в центр
+      scale: 1,
+      transition: { duration: 0.5 }
+    },
+    exit: {
+      opacity: 0,
+      x: 100, // Уезжаем за правый край
+      scale: 0.8,
+      transition: { duration: 0.3 }
+    }
+  };
 
   return (
       <Container className="my-5 mx-auto" style={{ maxWidth: '800px' }}>
@@ -125,8 +201,17 @@ const handleNextTask = () => {
               label={`${solvedTasks.size}/${tasks.length}`} 
               className="mb-4" 
           />
-        
-          {/* *** НОВОЕ УСЛОВИЕ: Показываем карточку, только если не все решено *** */}
+      <div style={{ position: 'relative', height: '400px' }}>
+        <AnimatePresence exitBeforeEnter>
+          <motion.div
+          key={currentTask ? currentTask.id : 'completion-message'}
+          variants={cardVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          style={{ position: 'absolute', width: '100%' }}
+        >
+{/* *** НОВОЕ УСЛОВИЕ: Показываем карточку, только если не все решено *** */}
           {!allTasksSolved ? (
               <Card>
                   <Card.Body>
@@ -162,6 +247,11 @@ const handleNextTask = () => {
                   <p>Вы успешно решили все задачи.</p>
               </Alert>
           )}
+        </motion.div>
+        </AnimatePresence>
+      </div>
+        
+          
 
           {feedback.show && (
               <Alert variant={feedback.variant} className="mt-4" onClose={() => setFeedback({ ...feedback, show: false })} dismissible>

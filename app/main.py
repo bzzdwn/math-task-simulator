@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
@@ -28,12 +28,12 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/tasks", response_model=List[schemas.TaskPublic])
-def read_tasks(db: Session = Depends(get_db)):
+@app.get("/tasks", response_model=List[schemas.TaskPublic], tags=["Tasks"])
+def read_tasks(db: Session = Depends(get_db), topic_id: Optional[int] = None):
     """
     Получить список всех задач.
     """
-    tasks = crud.get_tasks(db)
+    tasks = crud.get_tasks(db, topic_id=topic_id)
     return tasks
 
 @app.post("/check-answer", response_model=schemas.AnswerResponse)
