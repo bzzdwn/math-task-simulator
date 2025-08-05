@@ -64,14 +64,8 @@ def get_content_structure(db: Session = Depends(get_db)):
     disciplines = db.query(models.Discipline).options(
         selectinload(models.Discipline.sections).selectinload(models.Section.topics)
     ).all()
-
-    response_structure = {}
-    for d in disciplines:
-        response_structure[d.name] = {}
-        for s in d.sections:
-            response_structure[d.name][s.name] = [{"id": t.id, "name": t.name} for t in s.topics]
     
-    return response_structure
+    return disciplines
 
 @app.post("/check-answer", response_model=schemas.AnswerResponse)
 def check_answer(answer_request: schemas.AnswerRequest, db: Session = Depends(get_db)):

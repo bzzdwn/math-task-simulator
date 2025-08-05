@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import TaskSolver from './TaskSolver';
 import './index.css';
+import DisciplineCard from './DisciplineCard';
+import './DisciplineCard.css';
 
 const API_URL = "http://127.0.0.1:8000";
 const NAVIGATION_STATE_KEY = 'mathAppNavigationState';
@@ -13,14 +15,8 @@ function App() {
   const [structure, setStructure] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [currentDiscipline, setCurrentDiscipline] = useState(() => {
-    const savedState = JSON.parse(localStorage.getItem(NAVIGATION_STATE_KEY) || '{}');
-    return savedState.discipline || null;
-  });
-  const [currentSection, setCurrentSection] = useState(() => {
-    const savedState = JSON.parse(localStorage.getItem(NAVIGATION_STATE_KEY) || '{}');
-    return savedState.section || null;
-  });
+  const [currentDiscipline, setCurrentDiscipline] = useState(null);
+  const [currentSection, setCurrentSection] = useState(null);
   const [currentTopic, setCurrentTopic] = useState(() => {
     const savedState = JSON.parse(localStorage.getItem(NAVIGATION_STATE_KEY) || '{}');
     return savedState.topic || null;
@@ -51,14 +47,14 @@ function App() {
     localStorage.setItem(NAVIGATION_STATE_KEY, JSON.stringify(navigationState));
   }, [currentDiscipline, currentSection, currentTopic]);
 
-  const selectDiscipline = (name) => {
-    setCurrentDiscipline(name);
+  const selectDiscipline = (disciplineObject) => {
+    setCurrentDiscipline(disciplineObject);
     setCurrentSection(null);
     setCurrentTopic(null);
   };
 
-  const selectSection = (name) => {
-    setCurrentSection(name);
+  const selectSection = (sectionObject) => {
+    setCurrentSection(sectionObject);
     setCurrentTopic(null);
   };
 
@@ -76,35 +72,49 @@ function App() {
 
       {!currentTopic ? (
         <div>
+          {/* --- Блок выбора дисциплины (уже правильный) --- */}
           {!currentDiscipline && structure && (
             <>
               <h2 className="mb-3">Выберите дисциплину:</h2>
-              {Object.keys(structure).map(disciplineName => (
-                <Card key={disciplineName} className="mb-2" onClick={() => selectDiscipline(disciplineName)} style={{ cursor: 'pointer' }}>
-                  <Card.Body>{disciplineName}</Card.Body>
-                </Card>
-              ))}
+                <div className="row">
+                  {structure.map(discipline => (
+                    <DisciplineCard
+                      key={discipline.id}
+                      title={discipline.name}
+                      abbreviation={discipline.abbreviation}
+                      description={discipline.description}
+                      color={discipline.color}
+                      onClick={() => selectDiscipline(discipline)}
+                    />
+                  ))}
+                </div>
             </>
           )}
 
+          {/* --- ИСПРАВЛЕННЫЙ блок выбора раздела --- */}
           {currentDiscipline && !currentSection && (
             <>
-              <h2 className="mb-3">{currentDiscipline}</h2>
+              {/* Используем .name для отображения */}
+              <h2 className="mb-3">{currentDiscipline.name}</h2> 
               <h4>Выберите раздел:</h4>
-              {Object.keys(structure[currentDiscipline]).map(sectionName => (
-                <Card key={sectionName} className="mb-2" onClick={() => selectSection(sectionName)} style={{ cursor: 'pointer' }}>
-                  <Card.Body>{sectionName}</Card.Body>
+              {/* Итерируемся по .sections объекта */}
+              {currentDiscipline.sections.map(section => ( 
+                <Card key={section.name} className="mb-2" onClick={() => selectSection(section)}>
+                  <Card.Body>{section.name}</Card.Body>
                 </Card>
               ))}
               <Button variant="link" onClick={() => selectDiscipline(null)} className="p-0 mt-2">Назад к дисциплинам</Button>
             </>
           )}
 
+          {/* --- ИСПРАВЛЕННЫЙ блок выбора темы --- */}
           {currentDiscipline && currentSection && (
             <>
-              <h2 className="mb-3">{currentSection}</h2>
+              {/* Используем .name для отображения */}
+              <h2 className="mb-3">{currentSection.name}</h2> 
               <h4>Выберите тему:</h4>
-              {structure[currentDiscipline][currentSection].map(topic => (
+              {/* Итерируемся по .topics объекта */}
+              {currentSection.topics.map(topic => (
                 <Card key={topic.id} className="mb-2" onClick={() => setCurrentTopic(topic)} style={{ cursor: 'pointer' }}>
                   <Card.Body>{topic.name}</Card.Body>
                 </Card>

@@ -29,7 +29,10 @@ def populate_database():
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             structure_data = yaml.safe_load(f)
             for discipline_data in structure_data:
-                new_discipline = Discipline(name=discipline_data['discipline_name'])
+                new_discipline = Discipline(name=discipline_data['discipline_name'],
+                                            abbreviation=discipline_data['abbreviation'],
+                                            description=discipline_data['description'],
+                                            color=discipline_data['color'])
                 db.add(new_discipline)
 
                 for section_data in discipline_data["sections"]:

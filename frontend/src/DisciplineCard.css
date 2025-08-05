@@ -1,0 +1,31 @@
+.discipline-card {
+  color: white; /* Весь текст внутри будет белым */
+  border-radius: 16px; /* Большое скругление углов */
+  padding: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Центрируем контент по вертикали */
+}
+
+.discipline-card:hover {
+  transform: translateY(-5px); /* Легкий "подъём" при наведении */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Тень для объема */
+}
+
+.card-content {
+  text-align: left;
+}
+
+.card-abbreviation {
+  font-weight: 700; /* Жирный шрифт для аббревиатуры */
+  font-size: 1.75rem;
+  margin-bottom: 8px;
+}
+
+.card-description {
+  font-size: 1rem;
+  opacity: 0.9; /* Делаем описание чуть менее заметным */
+  margin: 0;
+}

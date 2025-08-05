@@ -19,6 +19,9 @@ class Discipline(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
+    abbreviation = Column(String)
+    description = Column(String)
+    color = Column(String)
     sections = relationship("Section", back_populates="discipline")
 
 class Section(Base):
