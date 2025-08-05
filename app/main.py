@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, selectinload
 from typing import List, Optional
 
+from app.checkers import check_diff_equation_solution
+
 from . import crud, models, schemas
 from .database import SessionLocal, engine
 import sympy

@@ -20,6 +20,7 @@ export default function TaskSolver({ topic, onBack }) {
   const [error, setError] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [textAnswer, setTextAnswer] = useState(""); // Состояние для текстового инпута
+  const [hintVisible, setHintVisible] = useState(false);
 
   const [solvedTasks, setSolvedTasks] = useState(() => {
     const savedTasks = localStorage.getItem(SOLVED_TASKS_STORAGE_KEY);
@@ -108,6 +109,7 @@ export default function TaskSolver({ topic, onBack }) {
             setFeedback({ show: false, message: '', variant: 'success' });
             setIsAnswered(false);
             setTextAnswer(""); // Сбрасываем текстовое поле
+            setHintVisible(false);
             return;
         }
     }
@@ -226,6 +228,23 @@ export default function TaskSolver({ topic, onBack }) {
                 <Alert variant={feedback.variant} className="mt-4" onClose={() => setFeedback({ ...feedback, show: false })} dismissible>
                   {feedback.message}
                 </Alert>
+              )}
+
+              {!allTasksSolved && (
+                <div className="text-center mt-3">
+
+                  {hintVisible && (
+                    <Alert variant="secondary" className="d-inline-block">
+                      {currentTask.hint}
+                    </Alert>
+                  )}
+
+                  {!hintVisible && (
+                    <Button variant="outline-info" onClick={() => setHintVisible(true)}>
+                      Показать подсказку
+                    </Button>
+                  )}
+                </div>
               )}
 
               {!allTasksSolved && (
