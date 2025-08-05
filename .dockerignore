@@ -1,0 +1,20 @@
+# Файл: .dockerignore
+
+# Игнорируем специфичные для Docker файлы
+Dockerfile*
+docker-compose.yml
+
+# Игнорируем Git
+.git
+.gitignore
+
+# Игнорируем виртуальное окружение Python
+venv/
+**/__pycache__/
+*.pyc
+
+# Игнорируем зависимости Node.js
+frontend/node_modules/
+
+# Игнорируем локальную базу данных
+tasks.db
