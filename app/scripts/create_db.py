@@ -30,6 +30,7 @@ def populate_database():
             structure_data = yaml.safe_load(f)
             for discipline_data in structure_data:
                 new_discipline = Discipline(name=discipline_data['discipline_name'])
+                db.add(new_discipline)
 
                 for section_data in discipline_data["sections"]:
                     new_section = Section(name=section_data["section_name"], discipline=new_discipline)
