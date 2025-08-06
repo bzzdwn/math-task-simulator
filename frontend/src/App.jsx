@@ -7,6 +7,7 @@ import TaskSolver from './TaskSolver';
 import './index.css';
 import DisciplineCard from './DisciplineCard';
 import './DisciplineCard.css';
+import NavigationBar from './NavigationBar';
 
 const API_URL = "http://127.0.0.1:8000";
 const NAVIGATION_STATE_KEY = 'mathAppNavigationState';
@@ -21,6 +22,12 @@ function App() {
     const savedState = JSON.parse(localStorage.getItem(NAVIGATION_STATE_KEY) || '{}');
     return savedState.topic || null;
   });
+
+  const navigateToHome = () => {
+    setCurrentDiscipline(null);
+    setCurrentSection(null);
+    setCurrentTopic(null);
+  };
 
   useEffect(() => {
     const fetchStructure = async () => {
@@ -67,15 +74,16 @@ function App() {
   }
 
   return (
-    <Container className="my-5 mx-auto" style={{ maxWidth: '800px' }}>
-      <h1 className="mb-4 text-center">Тренажер по высшей математике</h1>
+    <> 
+    <NavigationBar onNavigateHome={navigateToHome} />
+    <Container fluid="lg" className="my-5">
 
       {!currentTopic ? (
         <div>
           {/* --- Блок выбора дисциплины (уже правильный) --- */}
           {!currentDiscipline && structure && (
             <>
-              <h2 className="mb-3">Выберите дисциплину:</h2>
+              <h2 className="mb-5 text-center">Выберите дисциплину:</h2>
                 <div className="row">
                   {structure.map(discipline => (
                     <DisciplineCard
@@ -95,15 +103,25 @@ function App() {
           {currentDiscipline && !currentSection && (
             <>
               {/* Используем .name для отображения */}
-              <h2 className="mb-3">{currentDiscipline.name}</h2> 
-              <h4>Выберите раздел:</h4>
-              {/* Итерируемся по .sections объекта */}
-              {currentDiscipline.sections.map(section => ( 
-                <Card key={section.name} className="mb-2" onClick={() => selectSection(section)}>
-                  <Card.Body>{section.name}</Card.Body>
-                </Card>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <Button variant="outline-secondary" onClick={() => selectDiscipline(null)}>&larr; К дисциплинам</Button>
+                <h2 className="mb-3 text-center">{currentDiscipline.name}</h2>
+                {/* Пустая распорка для идеального центрирования заголовка */}
+                <div style={{width: '150px'}}></div> 
+              </div>
+
+              <div className="row">
+                {currentDiscipline.sections.map(section => ( 
+                <DisciplineCard
+                  key={section.name} // Временный ключ, лучше бы ID
+                  title={section.name}
+                  description={section.description}
+                  color={section.color}
+                  onClick={() => selectSection(section)}
+                />
               ))}
-              <Button variant="link" onClick={() => selectDiscipline(null)} className="p-0 mt-2">Назад к дисциплинам</Button>
+              </div>
+              
             </>
           )}
 
@@ -111,15 +129,22 @@ function App() {
           {currentDiscipline && currentSection && (
             <>
               {/* Используем .name для отображения */}
-              <h2 className="mb-3">{currentSection.name}</h2> 
-              <h4>Выберите тему:</h4>
-              {/* Итерируемся по .topics объекта */}
-              {currentSection.topics.map(topic => (
-                <Card key={topic.id} className="mb-2" onClick={() => setCurrentTopic(topic)} style={{ cursor: 'pointer' }}>
-                  <Card.Body>{topic.name}</Card.Body>
-                </Card>
-              ))}
-              <Button variant="link" onClick={() => selectSection(null)} className="p-0 mt-2">Назад к разделам</Button>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <Button variant="outline-secondary" onClick={() => selectSection(null)}>&larr; К разделам</Button>
+                <h2 className="mb-3 text-center">{currentSection.name}</h2>
+                <div style={{width: '130px'}}></div>
+              </div>
+              <div className="row">
+                {currentSection.topics.map(topic => (
+                  <DisciplineCard
+                    key={topic.id}
+                    title={topic.name}
+                    description={topic.description}
+                    color={topic.color}
+                    onClick={() => setCurrentTopic(topic)}
+                  />
+                ))}
+              </div>
             </>
           )}
         </div>
@@ -127,6 +152,7 @@ function App() {
         <TaskSolver topic={currentTopic} onBack={() => setCurrentTopic(null)} />
       )}
     </Container>
+    </>
   );
 }
 

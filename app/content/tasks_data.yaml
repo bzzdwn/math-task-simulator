@@ -1,12 +1,16 @@
 - discipline_name: "Математический анализ"
   abbreviation: "Матан"
   description: "Фундаментальные концепции пределов, производных, интегралов и рядов."
-  color: "#E57373" # Приятный красный цвет
+  color: "#D13838" # Приятный красный цвет
 
   sections:
     - section_name: "Ряды"
+      description: "Исследование бесконечных сумм, их свойств и сходимости"
+      color: "#CF4242"
       topics:
         - topic_name: "Числовые ряды"
+          description: "Бесконечные суммы, членами которых являются числа"
+          color: "#ed4c4c"
           tasks:
             - problem_latex: "\\sum_{n=1}^{\\infty} \\frac{2^{n+1} \\cdot n}{\\left(3 + \\frac{1}{n}\\right)^{2n}}"
               instruction: "Исследуйте ряд на сходимость" 
@@ -44,6 +48,21 @@
               answer: "сходится"
               hint: "Здесь тоже хорошо сработает радикальный признак Коши."
 
+        - topic_name: "Функциональные ряды"
+          description: "Бесконечные суммы, членами которых являются функции"
+          color: "#ed4c4c"
+
+        - topic_name: "Степенные ряды"
+          description: "Бесконечные суммы, членами которых являются функции специального вида"
+          color: "#ed4b4b"
+    - section_name: "Несобственные интегралы"
+      description: "Исследование свойств интегралов для бесконечных фигур"
+      color: "#ed4d4d"
+      topics:
+        - topic_name: "Несобственные интегралы I рода"
+          description: "Интегралы, у которых в пределах бесконечность"
+          color: "#E57373"
+
 - discipline_name: "Дифференциальные уравнения"
   abbreviation: "Диффуры"
   description: "Решение уравнений, связывающих функции с их производными."
@@ -59,3 +78,21 @@
               task_type: "expression"
               answer: "C1*exp(-2*t) + C2*exp(t)"
               hint: "Постройте характеристическое уравнение"
+
+- discipline_name: "Теория вероятностей"
+  abbreviation: "Тервер"
+  description: "Изучение закономерностей случайных явлений и событий."
+  color: "#FFCA28" # Приятный желтый/янтарный цвет
+  sections:
+  - section_name: "Случайные события"
+    topics:
+      - topic_name: "Классическое определение вероятности"
+
+- discipline_name: "Линейная алгебра"
+  abbreviation: "Линал"
+  description: "Матрицы."
+  color: "#FFCA30"
+  sections:
+  - section_name: "Матрицы"
+    topics:
+      - topic_name: "Матричные матрицы"

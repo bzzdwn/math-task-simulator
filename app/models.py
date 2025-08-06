@@ -29,6 +29,8 @@ class Section(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
+    description = Column(String)
+    color = Column(String)
     discipline_id = Column(Integer, ForeignKey('disciplines.id'))
     discipline = relationship("Discipline", back_populates="sections")
     topics = relationship("Topic", back_populates="section")
@@ -38,6 +40,8 @@ class Topic(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
+    description = Column(String)
+    color = Column(String)
     section_id = Column(Integer, ForeignKey('sections.id'))
     section = relationship("Section", back_populates="topics")
     tasks = relationship("Task", back_populates="topic")

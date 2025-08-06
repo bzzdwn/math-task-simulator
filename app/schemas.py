@@ -15,10 +15,14 @@ class TaskPublic(BaseModel):
 class TopicPublic(BaseModel):
     id: int
     name: str
+    description: str | None = None
+    color: str | None = None
     class Config: from_attributes = True
 
 class SectionPublic(BaseModel):
     name: str
+    description: str | None = None
+    color: str | None = None
     topics: List[TopicPublic] = []
     class Config: from_attributes = True
 

@@ -36,11 +36,17 @@ def populate_database():
                 db.add(new_discipline)
 
                 for section_data in discipline_data["sections"]:
-                    new_section = Section(name=section_data["section_name"], discipline=new_discipline)
+                    new_section = Section(name=section_data["section_name"], 
+                                          description=section_data.get('description'),
+                                          color=section_data.get('color'),
+                                          discipline=new_discipline)
                     db.add(new_section)
 
                     for topic_data in section_data["topics"]:
-                        new_topic = Topic(name=topic_data["topic_name"], section=new_section)
+                        new_topic = Topic(name=topic_data["topic_name"], 
+                                          description=topic_data.get('description'),
+                                          color=topic_data.get('color'),
+                                          section=new_section)
                         db.add(new_topic)
 
                         for task_data in topic_data.get("tasks", []):
