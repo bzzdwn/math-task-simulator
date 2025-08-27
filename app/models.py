@@ -22,6 +22,7 @@ class Discipline(Base):
     abbreviation = Column(String)
     description = Column(String)
     color = Column(String)
+    slug = Column(String, unique=True)
     sections = relationship("Section", back_populates="discipline")
 
 class Section(Base):
@@ -31,6 +32,7 @@ class Section(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(String)
     color = Column(String)
+    slug = Column(String, unique=True)
     discipline_id = Column(Integer, ForeignKey('disciplines.id'))
     discipline = relationship("Discipline", back_populates="sections")
     topics = relationship("Topic", back_populates="section")
@@ -42,6 +44,7 @@ class Topic(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(String)
     color = Column(String)
+    slug = Column(String, unique=True)
     section_id = Column(Integer, ForeignKey('sections.id'))
     section = relationship("Section", back_populates="topics")
     tasks = relationship("Task", back_populates="topic")
@@ -52,10 +55,11 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     topic_id = Column(Integer, ForeignKey('topics.id'))
     topic = relationship("Topic", back_populates="tasks")
-
+    
     instruction = Column(String, nullable=False)
     problem_latex = Column(String, nullable=False)
     hint = Column(String)
+    slug = Column(String, unique=True)
     
     task_type = Column(SQLAlchemyEnum(TaskTypeEnum), nullable=False)
 

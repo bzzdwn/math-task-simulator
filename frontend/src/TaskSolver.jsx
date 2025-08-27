@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
@@ -12,7 +13,9 @@ import 'katex/dist/katex.min.css';
 const API_URL = "http://127.0.0.1:8000";
 const SOLVED_TASKS_STORAGE_KEY = 'mathAppSolvedTasks';
 
-export default function TaskSolver({ topic, onBack }) {
+export default function TaskSolver() {
+  const { disciplineSlug, topicSlug } = useParams();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
   const [feedback, setFeedback] = useState({ show: false, message: '', variant: 'success' });
@@ -33,7 +36,7 @@ export default function TaskSolver({ topic, onBack }) {
   }, [solvedTasks]);
 
   useEffect(() => {
-    if (!topic) return;
+    if (!disciplineSlug || !topicSlug) return;
 
     const shuffleArray = (array) => {
         let currentIndex = array.length, randomIndex;
@@ -49,9 +52,18 @@ export default function TaskSolver({ topic, onBack }) {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_URL}/tasks?topic_id=${topic.id}`);
-        if (!response.ok) throw new Error(`Сетевая ошибка: ${response.status}`);
-        const data = await response.json();
+        const structureResponse = await fetch(`${API_URL}/structure`);
+        const structure = await structureResponse.json();
+        
+        const discipline = structure.find(d => d.slug === disciplineSlug);
+        const section = discipline?.sections.find(s => s.topics.some(t => t.slug === topicSlug));
+        const topic = section?.topics.find(t => t.slug === topicSlug);
+
+        if (!topic) throw new Error("Тема не найдена");
+        
+        const tasksResponse = await fetch(`${API_URL}/tasks?topic_id=${topic.id}`);
+        if (!tasksResponse.ok) throw new Error(`Сетевая ошибка`);
+        const data = await tasksResponse.json();
         
         const shuffledTasks = shuffleArray(data);
         setTasks(shuffledTasks);
@@ -80,7 +92,7 @@ export default function TaskSolver({ topic, onBack }) {
     };
 
     fetchAndPrepareTasks();
-  }, [topic]);
+  }, [disciplineSlug, topicSlug]);
 
   const handleAnswer = async (userAnswer) => {
     if (isAnswered || !userAnswer) return;
@@ -170,8 +182,8 @@ export default function TaskSolver({ topic, onBack }) {
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <Button variant="outline-secondary" onClick={onBack}>&larr; К выбору тем</Button>
-        <h2 className="mb-0 text-center">{topic.name}</h2>
+        <Button variant="outline-secondary" onClick={() => navigate(`/${disciplineSlug}`)}>&larr; К выбору тем</Button>
+        <h2 className="mb-0 text-center">{topicSlug.replace('-', ' ')}</h2>
         <div style={{width: '90px'}}></div>
       </div>
 

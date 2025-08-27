@@ -1,0 +1,35 @@
+/* Стили для нашей анимированной ссылки в навбаре */
+.animated-link {
+  position: relative; /* Необходимо для позиционирования псевдо-элемента */
+  padding: 12px 0; /* Добавим немного вертикального отступа */
+  color: #333 !important; /* Убедимся, что цвет текста темный */
+  font-weight: 500; /* Сделаем шрифт чуть жирнее */
+  transition: color 0.3s ease;
+}
+
+/* Создаем подчеркивание с помощью псевдо-элемента ::after */
+.animated-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #0d6efd; /* Цвет подчеркивания (стандартный синий Bootstrap) */
+  
+  /* Начальное состояние: линия полностью сжата (масштаб по X = 0) */
+  transform: scaleX(0);
+  transform-origin: bottom right; /* Анимация будет идти справа налево */
+  transition: transform 0.3s ease-out; /* Плавный переход для анимации */
+}
+
+/* Стили при наведении курсора */
+.animated-link:hover {
+  color: #0d6efd !important; /* Меняем цвет текста на синий */
+}
+
+.animated-link:hover::after {
+  /* Конечное состояние: линия растягивается на всю ширину */
+  transform: scaleX(1);
+  transform-origin: bottom left; /* Анимация "возвращается" слева направо */
+}

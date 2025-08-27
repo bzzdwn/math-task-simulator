@@ -32,13 +32,15 @@ def populate_database():
                 new_discipline = Discipline(name=discipline_data['discipline_name'],
                                             abbreviation=discipline_data['abbreviation'],
                                             description=discipline_data['description'],
-                                            color=discipline_data['color'])
+                                            color=discipline_data['color'],
+                                            slug=discipline_data['slug'])
                 db.add(new_discipline)
 
                 for section_data in discipline_data["sections"]:
                     new_section = Section(name=section_data["section_name"], 
                                           description=section_data.get('description'),
                                           color=section_data.get('color'),
+                                          slug=section_data.get('slug'),
                                           discipline=new_discipline)
                     db.add(new_section)
 
@@ -46,6 +48,7 @@ def populate_database():
                         new_topic = Topic(name=topic_data["topic_name"], 
                                           description=topic_data.get('description'),
                                           color=topic_data.get('color'),
+                                          slug=topic_data.get('slug'),
                                           section=new_section)
                         db.add(new_topic)
 
@@ -55,6 +58,7 @@ def populate_database():
                                 "instruction": task_data.get("instruction"),
                                 "problem_latex": task_data["problem_latex"],
                                 "hint": task_data.get("hint"),
+                                "slug": task_data.get("slug"),
                                 "topic": new_topic
                             }
 

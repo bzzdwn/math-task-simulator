@@ -2,97 +2,90 @@
   abbreviation: "Матан"
   description: "Фундаментальные концепции пределов, производных, интегралов и рядов."
   color: "#D13838" # Приятный красный цвет
+  slug: "math-analysis"
 
   sections:
     - section_name: "Ряды"
       description: "Исследование бесконечных сумм, их свойств и сходимости"
       color: "#CF4242"
+      slug: "series"
       topics:
         - topic_name: "Числовые ряды"
           description: "Бесконечные суммы, членами которых являются числа"
           color: "#ed4c4c"
+          slug: "numerical-series"
           tasks:
             - problem_latex: "\\sum_{n=1}^{\\infty} \\frac{2^{n+1} \\cdot n}{\\left(3 + \\frac{1}{n}\\right)^{2n}}"
               instruction: "Исследуйте ряд на сходимость" 
               task_type: "convergence"
               answer: "сходится"
               hint: "Используйте радикальный признак Коши."
+              slug: "convergence-1"
             
             - problem_latex: "\\sum_{n=1}^{\\infty} \\frac{\\left(2 + \\frac{1}{2n}\\right)^{2n}}{n \\cdot 2^n}"
               instruction: "Исследуйте ряд на сходимость" 
               task_type: "convergence"
               answer: "расходится"
               hint: "Попробуйте применить радикальный признак Коши."
+              slug: "convergence-2"
 
             - problem_latex: "\\sum_{n=1}^{\\infty} \\frac{4^{n+3} n^n}{(3n+1)^n (n+2)}"
               instruction: "Исследуйте ряд на сходимость" 
               task_type: "convergence"
               answer: "расходится"
               hint: "Оцените предел общего члена, используя радикальный признак Коши."
+              slug: "convergence-3"
 
             - problem_latex: "\\sum_{n=1}^{\\infty} \\left(\\frac{n-1}{n+1}\\right)^{n^2+4n+5}"
               instruction: "Исследуйте ряд на сходимость" 
               task_type: "convergence"
               answer: "сходится"
               hint: "Это классическая задача на радикальный признак Коши и второй замечательный предел."
+              slug: "convergence-4"
 
             - problem_latex: "\\sum_{n=1}^{\\infty} n^3 \\left(\\operatorname{arctg} \\frac{\\pi(2n+1)}{2(\\pi n + 3)}\\right)^n"
               instruction: "Исследуйте ряд на сходимость" 
               task_type: "convergence"
               answer: "сходится"
               hint: "Примените радикальный признак Коши. Вам понадобится найти предел основания."
+              slug: "convergence-5"
 
             - problem_latex: "\\sum_{n=1}^{\\infty} n \\left(\\frac{n+1}{2n+5}\\right)^{n(n+5)}"
               instruction: "Исследуйте ряд на сходимость" 
               task_type: "convergence"
               answer: "сходится"
               hint: "Здесь тоже хорошо сработает радикальный признак Коши."
+              slug: "convergence-6"
 
         - topic_name: "Функциональные ряды"
           description: "Бесконечные суммы, членами которых являются функции"
           color: "#ed4c4c"
+          slug: "functional-series"
 
         - topic_name: "Степенные ряды"
           description: "Бесконечные суммы, членами которых являются функции специального вида"
           color: "#ed4b4b"
+          slug: "power-series"
     - section_name: "Несобственные интегралы"
       description: "Исследование свойств интегралов для бесконечных фигур"
       color: "#ed4d4d"
+      slug: "improper-integrals"
+
       topics:
         - topic_name: "Несобственные интегралы I рода"
           description: "Интегралы, у которых в пределах бесконечность"
           color: "#E57373"
+          slug: "improper-integrals-i"
 
 - discipline_name: "Дифференциальные уравнения"
   abbreviation: "Диффуры"
   description: "Решение уравнений, связывающих функции с их производными."
   color: "#64B5F6" # Приятный синий цвет
+  slug: "differential-equations"
   
   sections:
     - section_name: "Линейные уравнения с постоянными коэффициентами"
+      slug: "linear-equations-with-constant-coefficients"
       topics:
         - topic_name: "Линейные однородные уравнения с постоянными коэффициентами"
-          tasks:
-            - problem_latex: "D^2x + Dx - 2x = 0"
-              instruction: "Построить общее решение уравнения"
-              task_type: "expression"
-              answer: "C1*exp(-2*t) + C2*exp(t)"
-              hint: "Постройте характеристическое уравнение"
-
-- discipline_name: "Теория вероятностей"
-  abbreviation: "Тервер"
-  description: "Изучение закономерностей случайных явлений и событий."
-  color: "#FFCA28" # Приятный желтый/янтарный цвет
-  sections:
-  - section_name: "Случайные события"
-    topics:
-      - topic_name: "Классическое определение вероятности"
-
-- discipline_name: "Линейная алгебра"
-  abbreviation: "Линал"
-  description: "Матрицы."
-  color: "#FFCA30"
-  sections:
-  - section_name: "Матрицы"
-    topics:
-      - topic_name: "Матричные матрицы"
+          slug: "linear-homogeneous-equations-with-constant-coefficients"
